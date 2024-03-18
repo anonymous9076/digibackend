@@ -6,6 +6,13 @@ const cors = require('cors')
 const multer = require('multer')
 const userRoute = require('./Router/user.js')
 const notesRoute = require('./Router/notes.js')
+// const cloudinary = require('cloudinary').v2;
+
+// cloudinary.config({
+//   cloud_name: 'dx2pchg1f',
+//   api_key: '572669552582811',
+//   api_secret: 'b2SCshmLesSh2-6ytc7oU8CQztk'
+// });
 
 const mongoose = require('mongoose')
 

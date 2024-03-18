@@ -18,5 +18,4 @@ router
     .get('/alldata', notesController.getAllNotes)
     .post('/uploadNotes', upload.single('my_file'), notesController.uploadNotes)
     
-
 exports.router = router

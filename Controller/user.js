@@ -51,30 +51,64 @@ exports.loginUser = async (req, res) => {
    //step 3 decrypt password
    // step 4 check weather both are valid or not 
    //step 5 make a token for next session
-   const { email, password } = req.body
-   if (!email || !password) {
-      res.json({ 'status': 'input feild is empty' })
-   }
-   const loguser = await newUserModel.findOne({ email })
-   if (loguser) {
-      const decryptPass = await bcryptjs.compare(password, loguser.password) // first is entered one 2nd is saved one
-      if (loguser && decryptPass) {
-         const accesstoken = jwt.sign({
-            user: {
-               email: loguser.email,
-               firstname: loguser.firstname
-            }
-         }, (process.env.secret_key), { expiresIn: '7d' })
-         res.status(200).json(loguser)
+   //    const { email, password } = req.body
+   //    if (!email || !password) {
+   //       res.json({ 'status': 'input feild is empty' })
+   //    }
+   //    const loguser = await newUserModel.findOne({ email })
+   //    if (loguser) {
+   //       const decryptPass = await bcryptjs.compare(password, loguser.password) // first is entered one 2nd is saved one
+   //       if (loguser && decryptPass) {
+   //          const accesstoken = jwt.sign({
+   //             user: {
+   //                email: loguser.email,
+   //                firstname: loguser.firstname
+   //             }
+   //          }, (process.env.secret_key), { expiresIn: '7d' })
+   //          res.status(200).json(loguser)
+   //       }
+   //       else {
+   //          console.log('false')
+   //          res.status(404).json('invalid password')
+   //       }
+   //    }
+   //    else {
+   //       res.status(404).json('invalid email & password')
+   //    }
+   const { email, password } = req.body;
+   try {
+      if (!email || !password) {
+         return res.status(400).json({ error: 'Please provide both email and password' });
       }
-      else {
-         console.log('false')
-         res.json({ "status": 'invalid password' })
+
+      const loguser = await newUserModel.findOne({ email });
+
+      if (loguser) {
+         const decryptPass = await bcryptjs.compare(password, loguser.password);
+         if (decryptPass) {
+            const accessToken = jwt.sign(
+               {
+                  user: {
+                     email: loguser.email,
+                     firstname: loguser.firstname
+                  }
+               },
+               process.env.secret_key,
+               { expiresIn: '7d' }
+            );
+            return res.status(200).json( loguser );
+         } else {
+            return res.status(401).json({ error: 'Invalid password' });
+         }
+      } else {
+         return res.status(404).json({ error: 'User not found' });
       }
+   } catch (error) {
+      console.error('Error during login:', error);
+      return res.status(500).json({ error: 'Server Error' });
    }
-   else {
-      res.status(404).json({ "status": 'invalid email & password' })
-   }
+
+
 }
 
 exports.getUserDetail = async (req, res) => {
@@ -85,16 +119,17 @@ exports.getUserDetail = async (req, res) => {
 exports.uploadImg = async (req, res) => {
    const image = req.file.path
    const email = req.body.email
-   try{
-   await newUserModel.updateOne(
-      { email: email },{
-      $set: {
-         profileImg : image
-   }}
-   )
-   res.json(image)
-}
-   catch(error){
+   try {
+      await newUserModel.updateOne(
+         { email: email }, {
+         $set: {
+            profileImg: image
+         }
+      }
+      )
+      res.json(image)
+   }
+   catch (error) {
       res.json('unable to update Image')
    }
 }
