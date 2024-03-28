@@ -117,6 +117,7 @@ exports.getUserDetail = async (req, res) => {
    res.json(user)
 }
 exports.uploadImg = async (req, res) => {
+   console.log('all ok')
    const image = req.file.path
    const email = req.body.email
    try {
